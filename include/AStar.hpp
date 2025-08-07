@@ -43,21 +43,29 @@ struct Point
         {
         case inspire_method::Manhattan:
             dis_to_end = abs(x - end.x) + abs(y - end.y);
+            break;
 
         case inspire_method::Euclidean:
             dis_to_end = sqrt((x - end.x) * (x - end.x) + (y - end.y) * (y - end.y));
+            break;
         }
     }
+};
+
+class AStarException : public std::runtime_error
+{
+public:
+    using runtime_error::runtime_error;
 };
 
 class AStar
 {
 public:
-    AStar(vector<vector<Point>> map) : map(map)
+    AStar(const vector<vector<Point>> map) : map(map)
     {
         if (map.empty())
         {
-            cout << "map is empty" << endl;
+            throw AStarException("ap is empty");
         }
     };
     ~AStar() {};
@@ -112,14 +120,15 @@ bool AStar::findPath(Point &start, Point &end, vector<Point> &Path)
             }
             open_queue.pop();
 
-            int dir[8][2] = {{-1, -1},
-                             {-1, 0},
-                             {-1, 1},
-                             {0, 1},
-                             {1, 1},
-                             {1, 0},
-                             {1, -1},
-                             {0, -1}};
+            const vector<vector<int>> dir = {{-1, -1},
+                                            {-1, 0},
+                                            {-1, 1},
+                                            {0, 1},
+                                            {1, 1},
+                                            {1, 0},
+                                            {1, -1},
+                                            {0, -1}};
+            
             if (map.empty())
             {
                 cout << "map is empty" << endl;
@@ -128,14 +137,14 @@ bool AStar::findPath(Point &start, Point &end, vector<Point> &Path)
             int rows = map.size();
             int cols = map[0].size();
 
-            for (int i = 0; i < 8; ++i)
+            for (const auto& d:dir)
             {
-                if ((current->x + dir[i][0]) >= 0 &&
-                    (current->x + dir[i][0]) < rows &&
-                    (current->y + dir[i][1]) >= 0 &&
-                    (current->y + dir[i][1]) < cols)
+                if ((current->x + d[0]) >= 0 &&
+                    (current->x + d[0]) < rows &&
+                    (current->y + d[1]) >= 0 &&
+                    (current->y + d[1]) < cols)
                 {
-                    Point *next_point = &map[static_cast<int>(current->x + dir[i][0])][static_cast<int>(current->y + dir[i][1])];
+                    Point *next_point = &map[static_cast<int>(current->x + d[0])][static_cast<int>(current->y + d[1])];
                     if (!next_point->closed && !next_point->blocked && open_set.find(next_point) == open_set.end())
                     {
                         next_point->Parent = current;

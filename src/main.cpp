@@ -1,4 +1,4 @@
-#include "AStar.hpp"
+#include "AStar_improve.hpp"
 #include "matplotlibcpp.h"
 #include <random>
 using namespace std;
@@ -16,9 +16,9 @@ pair<int, int> generate_my_random(int min, int max)
 int main()
 {
 
+    int map_size = 33;
     Point start(0, 0), end(32, 32);
 
-    int map_size = 33;
     vector<vector<Point>> map(map_size, vector<Point>(map_size));
     int rows = map.size();
     int cols = map[0].size();
@@ -27,8 +27,8 @@ int main()
     {
         for (int j = 0; j < cols; ++j)
         {
-            map[i][j].x = i;
-            map[i][j].y = j;
+            map[i][j].set_x(i);
+            map[i][j].set_y(j);
         }
     }
     vector<int> block_x;
@@ -36,14 +36,14 @@ int main()
     for (int i = 0; i < 600; ++i)
     {
         pair<int, int> temp = generate_my_random(0, 32);
-        map[temp.first][temp.second].blocked = true;
+        map[temp.first][temp.second].setBlocked(true);
         block_x.push_back(temp.first);
         block_y.push_back(temp.second);
     }
     plt::scatter(block_x, block_y, 2);
     // plt::scatter_colored(block_x,block_y)
-    map[0][0].blocked = false;
-    map[32][32].blocked = false;
+    map[0][0].setBlocked(false);
+    map[32][32].setBlocked(false);
 
     AStar astar(map);
     vector<Point> Path;
@@ -54,9 +54,9 @@ int main()
     {
         for (auto it = Path.end() - 1; it != Path.begin() - 1; --it)
         {
-            cout << it->x << "," << it->y << endl;
-            Path_x.push_back(static_cast<int>(it->x));
-            Path_y.push_back(static_cast<int>(it->y));
+            cout << it->x() << "," << it->y() << endl;
+            Path_x.push_back(static_cast<int>(it->x()));
+            Path_y.push_back(static_cast<int>(it->y()));
         }
         plt::scatter(Path_x, Path_y, 2);
         plt::show();
